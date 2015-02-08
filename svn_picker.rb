@@ -5,11 +5,15 @@ require "fileutils"
 
 class SvnPicker
 
-  attr_accessor :svn_info_list , :deployer
+  attr_accessor :svn_info_list , :deployer , :teste
 
   def initialize
     @svn_info_list = SvnInfo.all
     @deployer = Deployer.new
+  end
+
+  def finish_deploymend( project_name )
+    threads[project_name] = nil
   end
 
   def process
@@ -30,7 +34,7 @@ class SvnPicker
 
   end
 
-  private
+  #private
     def getInfo svn_info
       begin 
         command = IO.popen("svn info #{svn_info.url} --username=#{svn_info.user} --password=#{svn_info.pass}")
@@ -62,7 +66,11 @@ class SvnPicker
     def create_mvn_build(svn_info)
       begin 
         c = IO.popen("mvn -f #{svn_info.project_name} clean package")
-        c.each_line{ |line|  print ( line )  }
+
+        c.each_line do |line|  
+          print ( line ) if line.match /\[ERROR\]/ 
+          c.close if @teste
+        end
         svn_info.deploy_file= File.expand_path("#{svn_info.project_name}/target/#{svn_info.project_name}.war")
         return svn_info
       ensure
