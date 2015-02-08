@@ -1,25 +1,26 @@
 require "rest_client"
+require File.expand_path("tomcat_info")
 
 class Deployer
 
   #Usuário deve conter a permissão 'manager-script' do tomcat
-  tomcat = {  
-      :user => "tomcat",
-      :pass => "tomcat",
-      :url  => "http://localhost:8080/manager/text/"
-      :deploy => "deploy?path=/"
-      :undeploy => "undeploy?path=/"
-      :stop => "stop?path=/"
-      :dir  => "/home/efraimgentil/Servidores/apache-tomcat-7.0.57-teste-jotm/conf"
-  }
+  
+  def initialize
+    @tomcat = TomcatInfo.new
+    @tomcat.user = "tomcat"
+    @tomcat.pass = "tomcat"
+    @tomcat.root_url  = "http://localhost:8080/"
+  end
 
   def deploy( svn_info )
-    request = RestClient::Resource.new(tomcat[:url] + tomcat[:deploy] + svn_info[:project_name] , tomcat[:user] , tomcat[:pass]) 
-    request.put File.new( File.expand_path( svn_info[:deploy_file] ) )
+    request = RestClient::Resource.new( @tomcat.deploy_url_to_project( svn_info.project_name ) , @tomcat.user , @tomcat.pass ) 
+    print svn_info.deploy_file
+    request.put File.new( svn_info.deploy_file )
   end
 
   def undeploy( svn_info )
-    request = RestClient::Resource.new(tomcat[:url] + tomcat[:undeploy] + svn_info[:project_name] , tomcat[:user] , tomcat[:pass]) 
+    print @tomcat.undeploy_url_to_project( svn_info.project_name ) 
+    request = RestClient::Resource.new( @tomcat.undeploy_url_to_project( svn_info.project_name ) , @tomcat.user , @tomcat.pass ) 
     request.get
   end
 

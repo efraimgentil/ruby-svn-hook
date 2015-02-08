@@ -1,0 +1,9 @@
+--- !ruby/object:SvnInfo
+id: 1
+project_name: agenda-siconect
+user: efraim.gentil
+pass: Shint@160
+url: https://subversion.assembla.com/svn/agenda-sconect/trunk
+new_record: false
+deploy_file: "/home/efraimgentil/Workspaces/ruby/svn-picker/agenda-siconect/target/agenda-siconect.war"
+current_revision: '3'
