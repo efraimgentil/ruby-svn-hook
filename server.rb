@@ -1,6 +1,7 @@
 
 require "socket"
-require File.expand_path("svn_picker")
+require File.expand_path("svn_hook")
+#require File.expand_path("svn_picker")
 
 class Server
 
@@ -19,22 +20,23 @@ class Server
         puts request_line
 
         request_uri  = request_line.split(" ")[1]
-        m = request_uri.scan /([\w]+=[\w\\\/:]+)/
+        m = request_uri.scan /([\w]+=[\w\\\/:\.\-\_]+)/
         params = {}
         m.each{ |p|  
           param = p[0].split("=")
           params[param[0]] = param[1]
         }
 
+        puts params
         if( params["host"] ) then
           if( threads[params["host"]] ) then
             threads[params["host"]].exit
           end
           threads[params["host"]] = Thread.new{
-            c = IO.popen("mvn -f agenda-siconect clean package")
-            c.each_line do |l|
-              puts l
-            end
+            puts "Processando Host: #{params['host']}"
+            hook = SvnHook.new params["host"], params["revision"]
+            puts " OK "
+            hook.process
           }
         end
        
